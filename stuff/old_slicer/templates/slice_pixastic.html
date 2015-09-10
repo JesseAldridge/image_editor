@@ -1,0 +1,30 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>pixtastic example</title>
+    <script src='static/pixastic.custom.js'></script>
+    <style> img { width:50%; height:50% } </style>
+</head>
+<body>
+    <h2>original</h2>
+    <img src="static/1.png" id="img" />
+    <script>
+    var actions = [
+        'blur','desaturate','edges','edges2',
+        'emboss','flip','fliph','flipv','invert',
+        'iaplace','sepia','solarize'
+    ]
+    var imgSrc= document.getElementById('img').src
+    for (i in actions){
+        var img = new Image();  
+        var title=document.createElement('h2');
+        title.innerHTML=actions[i];
+        document.body.appendChild(title);   
+        document.body.appendChild(img); 
+        img.src=imgSrc;
+        Pixastic.process(img, actions[i]);
+    }
+    </script>
+</body>
+</html>

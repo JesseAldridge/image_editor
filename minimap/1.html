@@ -1,0 +1,14 @@
+<script src='https://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js'></script>
+<link rel='stylesheet' href='style.css'></link>
+
+<body onload="draw_image()">
+  Zoom<input class='zoom_input' value='1'>
+  <img src="1.png" id="img" style='display:none'>
+  <div class='main_container'>
+      <canvas id='main_canvas'></canvas>
+  </div>
+  <canvas id='mini_canvas'></canvas>
+</body>
+
+<script src='1_zoom.js'></script>
+<script src='2_drag.js'></script>

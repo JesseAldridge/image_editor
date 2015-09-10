@@ -1,0 +1,156 @@
+
+<!--<script src='https://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js'>
+</script>-->
+
+<script src="coordinates/jquery.js"></script>
+
+<style>
+.main_container {
+    width:800px;
+    height:600px;
+    overflow:scroll;
+}
+#main_canvas {
+    position:relative;
+}
+#mini_canvas {
+    overflow:scroll;
+    display:inline-block;
+    vertical-align: top;
+    width:160px;
+    height:100px;
+}
+</style>
+
+<!-- The hidden image, the inputs container, the canvas.  Initial draw. -->
+
+<body onload="draw()">
+<img src="1.png" id="img" style='display:none'>
+<div id='inputs_div'></div>
+<div class="main_container">
+<canvas id='main_canvas'></canvas>
+</div>
+<canvas id='mini_canvas'></canvas>
+</body>
+
+<script>
+
+var main_con = $('.main_container'),
+    zoom = 5,
+    image_width = $('img').width(),
+    image_height = $('img').height(),
+    main_canvas_width = image_width * zoom,
+    main_canvas_height = image_height * zoom,
+    view_x = 0, view_y = 0,
+    crop_x = null, crop_y = null,
+    view_width = main_con.width() / zoom, // in image coords
+    view_height = main_con.height() / zoom
+
+// Resize canvas to image.
+
+$('#main_canvas').attr('width', main_canvas_width)
+$('#main_canvas').attr('height', main_canvas_height)
+$('#mini_canvas').attr('width', image_width)
+$('#mini_canvas').attr('height', image_height)
+
+function draw() {
+
+    // Access the canvas.
+
+    var canvas = $("#main_canvas")
+    var container = $('#main_canvas').parent()
+    var ctx = canvas[0].getContext("2d")
+
+    // Draw the big image.
+
+    var img = document.getElementById("img")
+    ctx.imageSmoothingEnabled = false
+    ctx.drawImage(img, 0, 0, main_canvas_width, main_canvas_height)
+
+    // Draw crop rectanagle.
+
+    if(crop_x != null)
+        ctx.strokeRect(
+            crop_x / zoom + view_x, crop_y / zoom + view_y, 
+            crop_width / zoom, crop_height / zoom)
+
+    draw_minimap()
+}
+
+function draw_minimap() {
+    var canvas = $("#mini_canvas")
+    var ctx = canvas[0].getContext("2d")
+    ctx.drawImage(img,0,0)
+    var main_con = $($('#main_canvas').parent())
+    ctx.setLineWidth(20)
+    ctx.strokeStyle = 'red'
+    ctx.fillStyle = 'blue'
+    ctx.strokeRect(view_x, view_y, view_width, view_height)
+}
+
+var is_drag = false
+function drag_mini(e) {
+    e.preventDefault()
+    var mini_canvas = $('#mini_canvas')
+    var main_con = $($('#main_canvas').parent())
+
+    // Clicked position relative to mini map.
+
+    var mini_x = e.clientX - mini_canvas.position().left,
+        mini_y = e.clientY - mini_canvas.position().top
+
+    // Center view on mouse
+
+    view_x = mini_x / mini_canvas.width() * image_width
+    view_x -= view_width / 2.
+    view_y = mini_y / mini_canvas.height() * image_height
+    view_y -= view_height / 2.
+
+    // Keep view in bounds
+
+    if(view_x < 0)  
+        view_x = 0
+    if(view_y < 0)  
+        view_y = 0
+    if(view_x + view_width > image_width)  
+        view_x = image_width - view_width
+    if(view_y + view_height > image_height)
+        view_y = image_height - view_height
+
+    $('#main_canvas').offset({left:-view_x * zoom, top:-view_y * zoom})
+    draw_minimap()
+}
+
+function drag_crop(e) {
+    e.preventDefault()
+    var main_canvas = $('#main_canvas')
+    var canvas_x = e.clientX - main_canvas.position().left,
+        canvas_y = e.clientY - main_canvas.position().top
+    crop_width = canvas_x / zoom - crop_x
+    crop_height = canvas_y / zoom - crop_y
+    draw()
+}
+
+$(document).on('mousedown', '#mini_canvas', function(e) {
+    is_drag = true
+    $(document).on('mousemove', drag_mini)
+    drag_mini(e)
+})
+.on('mouseup', function(e) {
+    is_drag = false
+    $(document).unbind('mousemove')
+})
+
+$(document).on('mousedown', '#main_canvas', function(e) {
+    console.log('main canvas clicked')
+    is_drag = true
+    $(document).on('mousemove', drag_crop)
+    var main_canvas = $('#main_canvas')
+    var canvas_x = e.clientX - main_canvas.position().left,
+        canvas_y = e.clientY - main_canvas.position().top
+    crop_x = canvas_x / zoom
+    crop_y = canvas_y / zoom
+    drag_crop(e)
+})
+
+</script>

@@ -1,0 +1,19 @@
+
+.main_container {
+  overflow: scroll;
+  width: 400px;
+  height: 300px;
+  position: relative;
+}
+
+#main_canvas {
+  position: absolute;
+}
+
+#mini_canvas {
+  overflow:scroll;
+  display:inline-block;
+  vertical-align: top;
+  width:160px;
+  height:100px;
+}
