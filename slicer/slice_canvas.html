@@ -1,112 +1,21 @@
 
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.1/angular.min.js"></script>
 <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js'></script>
-<script src='https://raw.github.com/eligrey/FileSaver.js/master/FileSaver.js'></script>
+<script src='FileSaver.js'></script>
 
-<!-- The hidden image, the inputs container, the canvas.  Initial draw. -->
+<script src='1_image_widgets.js'></script>
+<!-- <script src='2_draw_over.js'></script> -->
 
-<body onload="draw()">
-<img src="hero_oh_hero.png" id="img" style='display:none'>
-<div id='inputs_div'></div>
-<canvas id='my_canvas' style='border:solid 1px'></canvas>
+<body ng-controller="MyController" ng-app="myApp" ng-onload="draw()">
+  <img src="hero_oh_hero.png" id="main-img" style='display:none'>
+  <div id='inputs_div'>
+    <div class='labeled_var' ng-repeat='(key, obj) in slice_vars'
+         style='width:100px; display: inline-block'>
+      <div style='font-family: Helvetica; font-size: 10px'>{{key}}</div>
+      <input ng-model='obj.val' placeholder="{{obj.default_val}}"
+             style='width:100px' ng-keydown='var_keydown(obj, $event)'/>
+    </div>
+    <input type="checkbox" id="black_check" label="black">black
+  </div>
+  <canvas id='my_canvas' style='border:solid 1px'></canvas>
 </body>
-
-<script>
-
-// Resize canvas to image.
-
-console.log('img width:', $('img').width())
-$('canvas').attr('width', $('img').width())
-$('canvas').attr('height', $('img').height())
-
-// Dynamically create inputs with default values and append them to inputs_div.
-
-var vars = ['x1', 'y1', 'width', 'height', 'xgap', 'ygap']
-var defaults = [100, 100, 100, 100, 100, 100]
-for(var i in vars)
-    $('#inputs_div').append(
-        '<input id="()" placeholder="()" value="()"></input>'.replace(
-            '()', vars[i]).replace('()', vars[i]).replace('()', defaults[i]))
-$('#inputs_div').append(
-    '<input type="checkbox" id="black_check" label="black">black')
-$('#' + vars[0]).focus()
-
-// Load saved input values.
-
-for(var i in vars)
-    if(localStorage.getItem(vars[i]))
-        $('#' + vars[i]).val(parseFloat(localStorage.getItem(vars[i])))
-
-$(document).on('keydown', 'input', function(e) {
-
-    // Save inputs.  Allow adjusting value with arrow keys and ctrl.
-
-    for(var i in vars)
-        localStorage.setItem(vars[i], $('#' + vars[i]).val())
-
-    // 40:down, 38:up, 37:left, 39:right
-    var amount = e.ctrlKey ? .1 : 1
-    var curr_val = $(this).val()
-    function adjust(amount) {
-        return (parseFloat(curr_val) + amount).toFixed(1)
-    }
-
-    if(e.keyCode == 38) {
-        $(this).val(adjust(amount))
-    }
-    else if(e.keyCode == 40)
-        $(this).val(adjust(-amount))
-    else
-        return
-    e.preventDefault()
-    draw()
-})
-
-function draw() {
-
-    // Pull the line drawing vars.  Access the canvas.
-
-    for(var i in vars)
-        eval(
-            'var ' + vars[i] + ' = ' +
-            'parseFloat($("#(id)").val())'.replace('(id)', vars[i]))
-
-    var canvas = $("#my_canvas")
-    var canvas_width = canvas.width(), canvas_height = canvas.height()
-    var ctx = canvas[0].getContext("2d")
-
-    // Draw the image.  Prepare to draw lines over it.
-
-    var img = document.getElementById("img")
-    ctx.drawImage(img,0,0)
-    ctx.strokeStyle = $('#black_check').is(':checked') ? 'black' : 'red'
-    ctx.fillStyle = 'white'
-
-    function line(x1, y1, x2, y2) {
-        console.log('line:', x1, y1, x2, y2)
-        ctx.beginPath()
-        ctx.moveTo(x1, y1)
-        ctx.lineTo(x2, y2)
-        ctx.stroke()
-    }
-
-    // Draw gap rectangles.  Draw lines.
-
-    for(var row = 0; row < 24; row++)
-        ctx.fillRect(
-            x1, y1 + height * (row + 1) + ygap * row, x1 + canvas_width, ygap)
-
-    for(var col = 0; col < 24; col++)
-        ctx.fillRect(
-            x1 + width * (col + 1) + xgap * col, y1, xgap, y1 + canvas_height)
-
-    for(var row = 0; row < 6; row++) {
-        var y = y1 + (height + ygap) * row
-        line(x1, y, x1 + canvas_width, y)
-    }
-
-    for(var col = 0; col < 6; col++) {
-        var x = x1 + (width + xgap) * col
-        line(x, y1, x, y1 + canvas_height)
-    }
-}
-</script>
