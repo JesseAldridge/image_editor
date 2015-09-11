@@ -4,7 +4,7 @@
 <script src='FileSaver.js'></script>
 
 <script src='1_image_widgets.js'></script>
-<!-- <script src='2_draw_over.js'></script> -->
+<script src='2_draw_over.js'></script>
 
 <body ng-controller="MyController" ng-app="myApp" ng-onload="draw()">
   <img src="hero_oh_hero.png" id="main-img" style='display:none'>
@@ -15,7 +15,8 @@
       <input ng-model='obj.val' placeholder="{{obj.default_val}}"
              style='width:100px' ng-keydown='var_keydown(obj, $event)'/>
     </div>
-    <input type="checkbox" id="black_check" label="black">black
+    <input type="checkbox" id="alt_line_color" label="alt_line_color">alt line color
+    <input type="checkbox" id="alt_gap_color" label="alt_gap_color">alt gap color
   </div>
   <canvas id='my_canvas' style='border:solid 1px'></canvas>
 </body>

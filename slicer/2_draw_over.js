@@ -1,6 +1,6 @@
 
 function after_init($scope) {
-  for(var key in $scope.slice_vars) {
+  for(var key in $scope.slice_vars)
     $scope.$watch('slice_vars["()"].val'.replace('()', key),
       function(key) {
         return function(new_val, old_val) {
@@ -9,7 +9,6 @@ function after_init($scope) {
           $scope.draw()
         }
       }(key))
-  }
 
   $scope.var_keydown = function(var_obj, event) {
     // Save inputs.  Allow adjusting value with arrow keys and ctrl.
@@ -28,8 +27,8 @@ function after_init($scope) {
 }
 
 function draw_over(ctx, $scope) {
-  ctx.strokeStyle = $('#black_check').is(':checked') ? 'black' : 'red'
-  ctx.fillStyle = '#ffffff'
+  ctx.strokeStyle = $('#alt_line_color').is(':checked') ? 'black' : 'red'
+  ctx.fillStyle = $('#alt_gap_color').is(':checked') ? 'red' : 'white'
 
   var canvas_width = $("#my_canvas").width()
   var canvas_height = $('#my_canvas').height()
@@ -42,16 +41,15 @@ function draw_over(ctx, $scope) {
     eval(eval_str)
   }
 
-  console.log('height:', height, 'y1:', y1, 'ygap:', ygap)
+  // Draw the gaps
 
-  ctx.globalAlpha=0.2;
   for(var row = 0; row < 24; row++)
     ctx.fillRect(x1, y1 + height * (row + 1) + ygap * row, x1 + canvas_width, ygap)
 
-  // for(var col = 0; col < 24; col++)
-  //   ctx.fillRect(x1 + width * (col + 1) + xgap * col, y1, xgap, y1 + canvas_height)
-  ctx.globalAlpha=1;
+  for(var col = 0; col < 24; col++)
+    ctx.fillRect(x1 + width * (col + 1) + xgap * col, y1, xgap, y1 + canvas_height)
 
+  // Draw the lines
 
   for(var row = 0; row < 6; row++) {
     var y = y1 + (height + ygap) * row

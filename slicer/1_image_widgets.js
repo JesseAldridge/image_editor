@@ -20,9 +20,8 @@ angular.module('myApp',[])
 
   $scope.draw = function() {
     var canvas = $("#my_canvas")
-    var canvas_width = canvas.width(), canvas_height = canvas.height()
     var ctx = canvas[0].getContext("2d")
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
+    ctx.clearRect(0, 0, canvas.width(), canvas.height())
     var img = document.getElementById("main-img")
     ctx.drawImage(img,0,0)
     draw_over(ctx, $scope)
