@@ -1,0 +1,97 @@
+<script src='https://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js'></script>
+
+<style>
+body {
+  margin: 0;
+  padding: 0;
+}
+
+#drop-area {
+  border: 2px dashed #ccc;
+}
+#drop-area.highlight {
+  border-color: purple;
+}
+#gallery {
+  margin-top: 10px;
+}
+#gallery img {
+  width: 150px;
+  margin-bottom: 10px;
+  margin-right: 10px;
+  vertical-align: middle;
+}
+
+#main_canvas {
+  border: solid 1px;
+}
+</style>
+
+<body id="drop-area">
+  <div>Zoom<input class='zoom_input' value='1'></div>
+
+  <canvas id='main_canvas'></canvas>
+</body>
+
+<script type="text/javascript">
+let dropArea = document.getElementById("drop-area")
+
+// Prevent default drag behaviors
+;['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+  dropArea.addEventListener(eventName, preventDefaults, false)
+  document.body.addEventListener(eventName, preventDefaults, false)
+})
+
+// Highlight drop area when item is dragged over it
+;['dragenter', 'dragover'].forEach(eventName => {
+  dropArea.addEventListener(eventName, function() { dropArea.classList.add('highlight'); }, false)
+})
+
+;['dragleave', 'drop'].forEach(eventName => {
+  dropArea.addEventListener(eventName, function() {  dropArea.classList.remove('active'); }, false)
+})
+
+// Handle dropped files
+dropArea.addEventListener('drop', handleDrop, false)
+
+function preventDefaults (e) {
+  e.preventDefault()
+  e.stopPropagation()
+}
+
+function handleDrop(e) {
+  var dt = e.dataTransfer
+  var files = dt.files
+
+  handleFiles(files)
+}
+
+function handleFiles(files) {
+  files = [...files]
+  files.forEach(previewFile)
+}
+
+previewFile = function() {
+  const zoom = 1;
+
+  return (function(file) {
+    let reader = new FileReader()
+    reader.readAsDataURL(file)
+    reader.onloadend = function() {
+      const img = new Image;
+      img.onload = function() {
+        console.log('image loaded');
+        const canvas_width = img.width * zoom,
+              canvas_height = img.height * zoom
+        $('#main_canvas').attr('width', canvas_width)
+        $('#main_canvas').attr('height', canvas_height)
+        const canvas = $("#main_canvas")
+        const ctx = canvas[0].getContext("2d")
+        ctx.imageSmoothingEnabled = false
+        ctx.drawImage(img, 0, 0, canvas_width, canvas_height)
+      }
+      img.src = URL.createObjectURL(file);
+    }
+  })
+}();
+</script>

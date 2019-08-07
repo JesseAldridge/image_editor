@@ -3,11 +3,14 @@
 <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js'></script>
 <script src='FileSaver.js'></script>
 
+<link rel='stylesheet' href='style.css'>
+
 <script src='1_image_widgets.js'></script>
 <script src='2_draw_over.js'></script>
 
 <body ng-controller="MyController" ng-app="myApp" ng-onload="draw()">
   <img src="hero_oh_hero.png" id="main-img" style='display:none'>
+
   <div id='inputs_div'>
     <div class='labeled_var' ng-repeat='(key, obj) in slice_vars'
          style='width:100px; display: inline-block'>
@@ -18,5 +21,5 @@
     <input type="checkbox" id="alt_line_color" label="alt_line_color">alt line color
     <input type="checkbox" id="alt_gap_color" label="alt_gap_color">alt gap color
   </div>
-  <canvas id='my_canvas' style='border:solid 1px'></canvas>
+  <canvas id='my_canvas'></canvas>
 </body>

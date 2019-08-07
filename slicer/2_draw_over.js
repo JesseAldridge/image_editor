@@ -43,21 +43,26 @@ function draw_over(ctx, $scope) {
 
   // Draw the gaps
 
-  for(var row = 0; row < 24; row++)
+  for(var row = 0; row < 30; row++)
     ctx.fillRect(x1, y1 + height * (row + 1) + ygap * row, x1 + canvas_width, ygap)
 
-  for(var col = 0; col < 24; col++)
+  for(var col = 0; col < 30; col++)
     ctx.fillRect(x1 + width * (col + 1) + xgap * col, y1, xgap, y1 + canvas_height)
 
   // Draw the lines
 
-  for(var row = 0; row < 6; row++) {
+  for(var row = 0; row < 30; row++) {
     var y = y1 + (height + ygap) * row
     line(ctx, x1, y, x1 + canvas_width, y)
   }
 
-  for(var col = 0; col < 6; col++) {
+  for(var col = 0; col < 30; col++) {
     var x = x1 + (width + xgap) * col
     line(ctx, x, y1, x, y1 + canvas_height)
   }
+
+  for(var row = 0; row < 30; row++)
+    for(var col = 0; col < 30; col++)
+      ctx.strokeRect(
+        x1 + (width + xgap) * col + 10, y1 + (height + ygap) * row + 10, 1, 1)
 }
