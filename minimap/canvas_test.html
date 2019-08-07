@@ -1,0 +1,23 @@
+<style>
+  #main_canvas {
+    border: solid 1px;
+    box-sizing: border-box;
+  }
+
+  #img {
+  }
+</style>
+
+<!-- don't set size via css or the image dimensions will be distored -->
+<canvas width=1000 height=100 id='main_canvas'></canvas>
+<img id="img" src="1.png" >
+
+<script>
+  window.addEventListener("load", function() {
+    const image = document.getElementById('img');
+    const canvas = document.getElementById('main_canvas');
+    const ctx = canvas.getContext("2d");
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(image, 0, 0, image.offsetWidth, image.offsetHeight);
+  }, false);
+</script>
