@@ -1,97 +1,116 @@
-<script src='https://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js'></script>
-
 <style>
 body {
   margin: 0;
   padding: 0;
-}
-
-#drop-area {
   border: 2px dashed #ccc;
-}
-#drop-area.highlight {
-  border-color: purple;
-}
-#gallery {
-  margin-top: 10px;
-}
-#gallery img {
-  width: 150px;
-  margin-bottom: 10px;
-  margin-right: 10px;
-  vertical-align: middle;
 }
 
 #main_canvas {
+  box-sizing: border-box;
   border: solid 1px;
+}
+
+#mini_canvas {
+  box-sizing: border-box;
+  display: block;
+  border: solid 1px;
+}
+
+.info {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  background: white;
 }
 </style>
 
 <body id="drop-area">
-  <div>Zoom<input class='zoom_input' value='1'></div>
-
-  <canvas id='main_canvas'></canvas>
+  <!-- don't set size via css or the image dimensions will be distored -->
+  <canvas width=640 height=480 id='main_canvas'></canvas>
+  <canvas width=160 height=120 id='mini_canvas'></canvas>
+  <div class="info"></div>
 </body>
 
 <script type="text/javascript">
-let dropArea = document.getElementById("drop-area")
 
-// Prevent default drag behaviors
-;['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-  dropArea.addEventListener(eventName, preventDefaults, false)
-  document.body.addEventListener(eventName, preventDefaults, false)
-})
+window.addEventListener("load", function() {
+  const body = document.getElementsByTagName("BODY")[0];
+  let zoom = 1;
+  const canvas = document.getElementById("main_canvas")
+  const ctx = canvas.getContext("2d")
+  ctx.imageSmoothingEnabled = false
 
-// Highlight drop area when item is dragged over it
-;['dragenter', 'dragover'].forEach(eventName => {
-  dropArea.addEventListener(eventName, function() { dropArea.classList.add('highlight'); }, false)
-})
+  const mini_canvas = document.getElementById("mini_canvas")
+  const mini_ctx = mini_canvas.getContext("2d")
+  let view_x = 0, view_y = 0;
 
-;['dragleave', 'drop'].forEach(eventName => {
-  dropArea.addEventListener(eventName, function() {  dropArea.classList.remove('active'); }, false)
-})
+  let image = null;
 
-// Handle dropped files
-dropArea.addEventListener('drop', handleDrop, false)
+  function draw_image() {
+    const image_width = image.width * zoom;
+    const image_height = image.height * zoom;
+    ctx.drawImage(image, 0, 0, image_width, image_height);
 
-function preventDefaults (e) {
-  e.preventDefault()
-  e.stopPropagation()
-}
+    mini_ctx.drawImage(image, 0, 0, mini_canvas.offsetWidth, mini_canvas.offsetHeight);
+    mini_ctx.lineWidth = 1;
+    mini_ctx.strokeStyle = 'red'
 
-function handleDrop(e) {
-  var dt = e.dataTransfer
-  var files = dt.files
+    console.log('canvas width:', canvas.offsetWidth);
+    console.log('image width:', image_width);
+    const rect_width = canvas.offsetWidth / image_width * mini_canvas.offsetWidth;
+    const rect_height = canvas.offsetHeight / image_height * mini_canvas.offsetHeight;
+    console.log('rect_width:', rect_width);
+    mini_ctx.strokeRect(view_x, view_y, rect_width, rect_height);
+  }
 
-  handleFiles(files)
-}
+  window.addEventListener("wheel", event => {
+    const delta = Math.sign(event.deltaY);
+    zoom += delta;
+    draw_image();
+  });
 
-function handleFiles(files) {
-  files = [...files]
-  files.forEach(previewFile)
-}
+  body.onmousemove = function(e) {
+    const info_el = document.getElementsByClassName("info")[0];
+    info_el.innerHTML = `${e.clientX} x ${e.clientY}; Zoom: ${zoom}`;
+  }
 
-previewFile = function() {
-  const zoom = 1;
-
-  return (function(file) {
-    let reader = new FileReader()
-    reader.readAsDataURL(file)
-    reader.onloadend = function() {
-      const img = new Image;
-      img.onload = function() {
-        console.log('image loaded');
-        const canvas_width = img.width * zoom,
-              canvas_height = img.height * zoom
-        $('#main_canvas').attr('width', canvas_width)
-        $('#main_canvas').attr('height', canvas_height)
-        const canvas = $("#main_canvas")
-        const ctx = canvas[0].getContext("2d")
-        ctx.imageSmoothingEnabled = false
-        ctx.drawImage(img, 0, 0, canvas_width, canvas_height)
-      }
-      img.src = URL.createObjectURL(file);
-    }
+  // Prevent default drag behaviors
+  ;['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+    document.body.addEventListener(eventName, preventDefaults, false)
   })
-}();
+
+  // Handle dropped files
+  body.addEventListener('drop', handleDrop, false)
+
+  function preventDefaults (e) {
+    e.preventDefault()
+    e.stopPropagation()
+  }
+
+  function handleDrop(e) {
+    var dt = e.dataTransfer
+    var files = dt.files
+
+    handleFiles(files)
+  }
+
+  function handleFiles(files) {
+    files = [...files]
+    files.forEach(previewFile)
+  }
+
+  previewFile = function() {
+    return (function(file) {
+      let reader = new FileReader()
+      reader.readAsDataURL(file)
+      reader.onloadend = function() {
+        image = new Image;
+        image.onload = function() {
+          draw_image();
+        }
+        image.src = URL.createObjectURL(file);
+      }
+    })
+  }();
+}, false);
 </script>
